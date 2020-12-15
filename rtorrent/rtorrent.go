@@ -140,6 +140,10 @@ func (r *RTorrent) WithHTTPClient(client *http.Client) *RTorrent {
 	return r
 }
 
+func (r *RTorrent) XMLPRCClient() *xmlrpc.Client {
+	return r.xmlrpcClient
+}
+
 // AddStopped adds a new torrent by URL in a stopped state
 //
 // extraArgs can be any valid rTorrent rpc command. For instance:
@@ -334,6 +338,22 @@ func (r *RTorrent) GetTorrents(view View) ([]Torrent, error) {
 		}
 	}
 	return torrents, nil
+}
+
+func (r *RTorrent) Announce(hash string) error {
+	_, err := r.xmlrpcClient.Call("d.tracker_announce", hash)
+	if err != nil {
+		return errors.Wrap(err, "d.tracker_announce call failed")
+	}
+	return nil
+}
+
+func (r *RTorrent) Pause(hash string) error {
+	_, err := r.xmlrpcClient.Call("d.pause", hash)
+	if err != nil {
+		return errors.Wrap(err, "d.pause call failed")
+	}
+	return nil
 }
 
 // GetTorrent returns the torrent identified by the given hash
